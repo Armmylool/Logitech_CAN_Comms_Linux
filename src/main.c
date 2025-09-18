@@ -73,9 +73,10 @@ int getData_G29(void* data) {
             G29_val.steering = SDL_JoystickGetAxis(joystick, 0);
             G29_val.accelerator = SDL_JoystickGetAxis(joystick, 2);
             G29_val.brake = SDL_JoystickGetAxis(joystick, 3);
-            SDL_Log("Steering Data : %d", G29_val.steering) ;
+            SDL_Log("Accelerator Data : %d", G29_val.accelerator) ;
             // Send steering data over CAN
-            receiveDataFromG29(G29_val.steering);
+            throttle_prepare(G29_val.accelerator) ;
+//            receiveDataFromG29(G29_val.steering);
 
             SDL_UnlockMutex(state_mutex);
             SDL_Delay(1); // 10ms delay gives a 100Hz update rate

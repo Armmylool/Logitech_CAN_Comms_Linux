@@ -7,6 +7,7 @@ struct Keya_Command {
     const uint8_t ENABLE[8];
     const uint8_t DISABLE[8];
     const uint8_t POSITION[8];
+    const uint8_t SPEED[8] ;
 };
 
 extern struct Keya_Command wheel_comms;
