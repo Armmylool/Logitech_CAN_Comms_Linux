@@ -24,6 +24,13 @@ int socketcan_init(const char* interface_name);
 bool CAN_Write(struct can_frame *frame);
 
 /**
+ * @brief Reads a single CAN frame from the socket (blocking).
+ * @param frame A pointer to a can_frame struct where the received data will be stored.
+ * @return The number of bytes read on success, -1 on failure.
+ */
+int CAN_Read(struct can_frame *frame);
+
+/**
  * @brief Closes the CAN socket.
  */
 void CAN_Close(void);

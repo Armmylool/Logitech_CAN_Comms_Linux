@@ -69,6 +69,33 @@ bool CAN_Write(struct can_frame *frame) {
 }
 
 /**
+ * @brief Reads a single CAN frame from the socket (blocking).
+ * @param frame A pointer to a can_frame struct where the received data will be stored.
+ * @return The number of bytes read on success, -1 on failure.
+ */
+int CAN_Read(struct can_frame *frame) {
+    if (fd < 0) {
+        fprintf(stderr, "CAN socket not initialized.\n");
+        return -1;
+    }
+
+    // The read() system call will block until a frame is received
+    ssize_t nbytes = read(fd, frame, sizeof(struct can_frame));
+
+    if (nbytes < 0) {
+        perror("CAN read failed");
+        return -1;
+    }
+
+    if (nbytes < sizeof(struct can_frame)) {
+        fprintf(stderr, "Incomplete CAN frame received.\n");
+        return -1;
+    }
+
+    return nbytes;
+}
+
+/**
  * @brief Closes the CAN socket.
  */
 void CAN_Close(void) {

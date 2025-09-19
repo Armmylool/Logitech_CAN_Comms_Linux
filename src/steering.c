@@ -65,5 +65,16 @@ void speedMode(int speed) {
      struct can_frame frame ;
      frame.can_id = WHEEL_CAN_ID ;
      frame.can_dlc = 8 ;
+     memcpy(frame.data, wheel_comms.SPEED, 4) ;
+     frame.data[4] = (speed >> 8) & 0xFF ;
+     frame.data[5] = speed & 0xFF ;
 
+     if (speed < 0) {
+        frame.data[6] = 0xFF ;
+        frame.data[7] = 0xFF ;
+     } else {
+        frame.data[6] = 0x00 ;
+        frame.data[7] = 0x00 ;
+     }
+     CAN_Write(&frame) ;
 }
