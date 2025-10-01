@@ -9,9 +9,11 @@
 
 struct Keya_Command wheel_comms = {
     {0x23, 0x0D, 0x20, 0x01, 0x00, 0x00, 0x00, 0x00},  // Enable Command
-    {0x23, 0x0D, 0x20, 0x01, 0x00, 0x00, 0x00, 0x00},  // Disable Command
+    {0x23, 0x0C, 0x20, 0x01, 0x00, 0x00, 0x00, 0x00},  // Disable Command
     {0x23, 0x02, 0x20, 0x01, 0x00, 0x00, 0x00, 0x00},  // Header of Position Mode
-    {0x23, 0x00, 0x20, 0x01, 0x00, 0x00, 0x00, 0x00}
+    {0x23, 0x00, 0x20, 0x01, 0x00, 0x00, 0x00, 0x00},  // Header of Speed Mode
+    {0x03, 0x0D, 0x20, 0x11, 0x00, 0x00, 0x00, 0x00},  // Change to Speed Mode
+    {0x03, 0x0D, 0x20, 0x31, 0x00, 0x00, 0x00, 0x00}   // Change to Absolute Mode
 };
 
 // This function is no longer needed as we build the data directly.
@@ -31,6 +33,22 @@ void disableWheel(void) {
     frame.can_dlc = 8;
     memcpy(frame.data, wheel_comms.DISABLE, 8);
     CAN_Write(&frame);
+}
+
+void changeSpeedMode(void) {
+    struct can_frame frame ;
+    frame.can_id = WHEEL_CAN_ID ;
+    frame.can_dlc = 8 ;
+    memcpy(frame.data, wheel_comms.SPEED_MODE, 8) ;
+    CAN_Write(&frame) ;
+}
+
+void changeAbsolutePositionMode (void) {
+    struct can_frame frame ;
+    frame.can_id = WHEEL_CAN_ID ;
+    frame.can_dlc = 8 ;
+    memcpy(frame.data, wheel_comms.ABSOLUTE_MODE, 8) ;
+    CAN_Write(&frame) ;
 }
 
 void receiveDataFromG29(Sint16 data) {
@@ -61,7 +79,7 @@ void receiveDataFromG29(Sint16 data) {
     CAN_Write(&frame);
 }
 
-void speedMode(int speed) {
+void speedMode(int16_t speed) {
      struct can_frame frame ;
      frame.can_id = WHEEL_CAN_ID ;
      frame.can_dlc = 8 ;
@@ -77,4 +95,29 @@ void speedMode(int speed) {
         frame.data[7] = 0x00 ;
      }
      CAN_Write(&frame) ;
+}
+
+void absolutePosition(int16_t position) {
+    struct can_frame frame;
+    frame.can_id = WHEEL_CAN_ID;
+    frame.can_dlc = 8;
+
+
+    // Prepare the data payload directly in the frame
+    // This combines the logic from create_extended_packet and CAN_Write_integer
+    memcpy(frame.data, wheel_comms.POSITION, 4); // Copy the header "23022001"
+
+    // Place the scaled data into the last 4 bytes (Big Endian)
+    frame.data[4] = (position >> 8) & 0xFF;
+    frame.data[5] = position & 0xFF;
+    
+    if (position < 0) {
+        frame.data[6] = 0xFF;
+        frame.data[7] = 0xFF;
+    } else {
+        frame.data[6] = 0x00;
+        frame.data[7] = 0x00;
+    }
+
+    CAN_Write(&frame);
 }
