@@ -3,6 +3,7 @@
 #include "G29.h"
 #include "Port.h"
 #include "steering.h"
+#include "Brake.h"
 
 bool joystickReady = 0;
 typedef struct {
@@ -70,14 +71,15 @@ int getData_G29(void* data) {
         if (joystickReady) {
             SDL_JoystickUpdate();
             SDL_LockMutex(state_mutex);
-            G29_val.steering = SDL_JoystickGetAxis(joystick, 0);
-            G29_val.accelerator = SDL_JoystickGetAxis(joystick, 2);
+            //G29_val.steering = SDL_JoystickGetAxis(joystick, 0);
+            //G29_val.accelerator = SDL_JoystickGetAxis(joystick, 2);
             G29_val.brake = SDL_JoystickGetAxis(joystick, 3);
-            SDL_Log("Accelerator Data : %d", G29_val.accelerator) ;
+//            SDL_Log("Accelerator Data : %d", G29_val.accelerator) ;
+            //SDL_Log("Brake Data : %d", G29_val.brake) ;
             // Send steering data over CAN
-            throttle_prepare(G29_val.accelerator) ;
+//           throttle_prepare(G29_val.accelerator) ;
 //            receiveDataFromG29(G29_val.steering);
-
+	    brake_Control(G29_val.brake) ;
             SDL_UnlockMutex(state_mutex);
             SDL_Delay(1); // 10ms delay gives a 100Hz update rate
         } 
