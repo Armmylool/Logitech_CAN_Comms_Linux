@@ -43,9 +43,9 @@ void brake_Control(int value) {
     frame.data[3] = lowerByte ;
     frame.data[4] = higherByte ;
     frame.data[7] = calculate_checksum(frame.data,7) ;
-    printf("Sending frame: ");
+    /*printf("Sending frame: ");
     for (int i = 0; i < 8; i++) printf("%02X ", frame.data[i]);
-    printf("\n");
+    printf("\n"); */
     CAN_Write(&frame) ;
 }
 

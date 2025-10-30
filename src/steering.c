@@ -58,7 +58,7 @@ void receiveDataFromG29(Sint16 data) {
 
     // Scale the joystick data
     int16_t scaleData = -1 * (data / 1.31068);
-    SDL_Log("Steering wheel scale data : %d", scaleData);
+    //SDL_Log("Steering wheel scale data : %d", scaleData);
 
     // Prepare the data payload directly in the frame
     // This combines the logic from create_extended_packet and CAN_Write_integer

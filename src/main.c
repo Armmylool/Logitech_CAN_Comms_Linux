@@ -43,8 +43,15 @@ int main(int argc, char *argv[]) {
             if (event.type == SDL_QUIT) {
                 app_is_running = SDL_FALSE;
             }
-        }
-    }
+        else if (event.type == SDL_JOYBUTTONDOWN) {
+             SDL_Log("Button %d pressed.", event.jbutton.button);
+             if (event.jbutton.button == 23) {
+                joystickReady = 1;
+                SDL_Log("✅ Joystick enabled!");
+                }
+             }
+         }
+     }
 
     // Clean up
     SDL_WaitThread(producer_thread, NULL);
@@ -57,32 +64,23 @@ int main(int argc, char *argv[]) {
 }
 
 int getData_G29(void* data) {
-    while (app_is_running) { // Use the main loop's flag
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_JOYBUTTONDOWN) {
-                SDL_Log("Button %d pressed.", event.jbutton.button);
-                if (event.jbutton.button == 23) {
-                    joystickReady = 1;
-                }
-            }
-        }
-
+    while (app_is_running) {
         if (joystickReady) {
             SDL_JoystickUpdate();
             SDL_LockMutex(state_mutex);
-            //G29_val.steering = SDL_JoystickGetAxis(joystick, 0);
-            //G29_val.accelerator = SDL_JoystickGetAxis(joystick, 2);
+            G29_val.steering = SDL_JoystickGetAxis(joystick, 0);
+            G29_val.accelerator = SDL_JoystickGetAxis(joystick, 2);
             G29_val.brake = SDL_JoystickGetAxis(joystick, 3);
-//            SDL_Log("Accelerator Data : %d", G29_val.accelerator) ;
+            //SDL_Log("Accelerator Data : %d", G29_val.accelerator) ;
             //SDL_Log("Brake Data : %d", G29_val.brake) ;
-            // Send steering data over CAN
-//           throttle_prepare(G29_val.accelerator) ;
-//            receiveDataFromG29(G29_val.steering);
+	    //SDL_Log("Steering Data : %d", G29_val.steering) ;
+            /*Send steering data over CAN*/
+//            throttle_prepare(G29_val.accelerator) ;
+            receiveDataFromG29(G29_val.steering);
 	    brake_Control(G29_val.brake) ;
             SDL_UnlockMutex(state_mutex);
-            SDL_Delay(1); // 10ms delay gives a 100Hz update rate
-        } 
+            SDL_Delay(5); // 10ms delay gives a 100Hz update rate
+        }
     }
     return 0;
 }
