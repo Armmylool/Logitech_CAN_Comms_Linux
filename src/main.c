@@ -5,7 +5,7 @@
 #include "steering.h"
 #include "Brake.h"
 
-bool joystickReady = 0;
+bool joystickReady = SDL_FALSE;
 typedef struct {
     Sint16 steering;
     Sint16 accelerator;
@@ -32,7 +32,8 @@ int main(int argc, char *argv[]) {
     }
 
     enableWheel();
-
+    SDL_Delay(5) ;
+    absolutePosition(0) ;
     state_mutex = SDL_CreateMutex();
     SDL_Log("Main: Starting worker threads...");
     SDL_Thread* producer_thread = SDL_CreateThread(getData_G29, "G29_Publish", NULL);
@@ -71,11 +72,11 @@ int getData_G29(void* data) {
             G29_val.steering = SDL_JoystickGetAxis(joystick, 0);
             G29_val.accelerator = SDL_JoystickGetAxis(joystick, 2);
             G29_val.brake = SDL_JoystickGetAxis(joystick, 3);
-            //SDL_Log("Accelerator Data : %d", G29_val.accelerator) ;
-            //SDL_Log("Brake Data : %d", G29_val.brake) ;
-	    //SDL_Log("Steering Data : %d", G29_val.steering) ;
+//            SDL_Log("Accelerator Data : %d", G29_val.accelerator) ;
+//            SDL_Log("Brake Data : %d", G29_val.brake) ;
+//	    SDL_Log("Steering Data : %d", G29_val.steering) ;
             /*Send steering data over CAN*/
-//            throttle_prepare(G29_val.accelerator) ;
+            throttle_prepare(G29_val.accelerator) ;
             receiveDataFromG29(G29_val.steering);
 	    brake_Control(G29_val.brake) ;
             SDL_UnlockMutex(state_mutex);

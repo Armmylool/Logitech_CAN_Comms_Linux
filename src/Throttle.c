@@ -2,7 +2,7 @@
 #include "Port.h"
 #include <string.h>
 
-#define THROTTLE_CAN_ID 0x06000002 | CAN_EFF_FLAG
+#define THROTTLE_CAN_ID 0x06000003 | CAN_EFF_FLAG
 
 struct throttle_Command throttle_comms = {
     .SET_VALUE = {0x23, 0x03, 0x20, 0x01, 0x00, 0x00, 0x00, 0x00}

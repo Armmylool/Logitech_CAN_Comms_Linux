@@ -35,7 +35,7 @@ void brake_Control(int value) {
     frame.can_id = Brake_CAN_ID ;
     frame.can_dlc = 8 ;
     memcpy(frame.data, brake_comms.MOVE, 8) ;
-    uint16_t value_cali_brake = 800 - (((int32_t)value + 32768) * 800 / 65535);
+    uint16_t value_cali_brake = 2000 - (((int32_t)value + 32768) * 2000 / 65535);
     //printf("Value : %d\n", value_cali_brake) ;
     unsigned char lowerByte = value_cali_brake & 0xFF ;
     unsigned char higherByte = (value_cali_brake >> 8) & 0xFF ;

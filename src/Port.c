@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h> 
+#include <errno.h>
 
 // This global file descriptor will now be our socket
 int fd = -1;
@@ -53,18 +54,32 @@ int socketcan_init(const char* interface_name) {
  * @param frame A pointer to the can_frame struct to be sent.
  * @return true on success, false on failure.
  */
+//bool CAN_Write(struct can_frame *frame) {
+//    if (fd < 0) {
+//        fprintf(stderr, "CAN socket not initialized.\n");
+//        return false;
+//    }
+//
+//    // The write() system call is atomic for a single frame
+//    if (write(fd, frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
+//        perror("CAN write failed");
+//        return false;
+//    }
+//
+//    return true;
+//}
 bool CAN_Write(struct can_frame *frame) {
-    if (fd < 0) {
-        fprintf(stderr, "CAN socket not initialized.\n");
-        return false;
-    }
-
-    // The write() system call is atomic for a single frame
-    if (write(fd, frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
+    // ใช้ send พร้อม flag MSG_DONTWAIT แทน write
+    ssize_t nbytes = send(fd, frame, sizeof(struct can_frame), MSG_DONTWAIT);
+    
+    if (nbytes < 0) {
+        // ถ้า error เป็น EAGAIN (Buffer เต็ม) ให้ return false เงียบๆ ไม่ต้องโวยวาย
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            return false;
+        }
         perror("CAN write failed");
         return false;
     }
-
     return true;
 }
 

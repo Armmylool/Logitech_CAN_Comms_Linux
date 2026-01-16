@@ -7,6 +7,12 @@
 // We also need to set the EFF (Extended Frame Format) flag.
 #define WHEEL_CAN_ID 0x06000001 | CAN_EFF_FLAG
 
+#define G29_Left_Max -32756
+#define Left_Max_Calibrate 19166.666016
+#define G29_Right_Max 32756
+#define Right_Max_Calibrate -19944.445312
+
+
 struct Keya_Command wheel_comms = {
     {0x23, 0x0D, 0x20, 0x01, 0x00, 0x00, 0x00, 0x00},  // Enable Command
     {0x23, 0x0C, 0x20, 0x01, 0x00, 0x00, 0x00, 0x00},  // Disable Command
@@ -55,10 +61,18 @@ void receiveDataFromG29(Sint16 data) {
     struct can_frame frame;
     frame.can_id = WHEEL_CAN_ID;
     frame.can_dlc = 8;
-
+    int16_t scaleData ;
     // Scale the joystick data
-    int16_t scaleData = -1 * (data / 1.31068);
-    //SDL_Log("Steering wheel scale data : %d", scaleData);
+//    int16_t scaleData = -1 * (data / 1.3107);
+
+    /* Divided 2 part if left is not equal to right from calibrate */
+    if (data <= 0 ) {
+       scaleData = (data / (G29_Left_Max / Left_Max_Calibrate)) ;
+    }
+    else if (data > 0 ) {
+       scaleData = (data / (G29_Right_Max / Right_Max_Calibrate)) ;
+    }
+//    SDL_Log("Steering wheel scale data : %d", scaleData);
 
     // Prepare the data payload directly in the frame
     // This combines the logic from create_extended_packet and CAN_Write_integer
